@@ -23,7 +23,7 @@ page = st.sidebar.radio('Aller vers', pages)
 st.sidebar.write('# Auteurs')
 st.sidebar.write('Romain NALLET')
 st.sidebar.write('Valentin CHARRIER')
-st.sidebar.write('Soulaimana YSSOUFY')
+st.sidebar.write('Soulaimana YSSOUFI')
 st.title('Emission CO2')
 
 # Page 1
