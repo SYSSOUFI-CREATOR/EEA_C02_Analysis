@@ -628,7 +628,7 @@ with st.sidebar:
                 st.image('Images/donnees_aberantes.png')
             with col3:
                 st.image('Images/data_corrige.png')
-//////
+                
 if page == 'Dashboard':
     st.header('Application en contexte')
     st.write('Cette partie propose d\'utiliser nos modèles de prédiction pour les appliquer à des exemples plus concrets.')
@@ -776,9 +776,7 @@ if page == 'Dashboard':
             st.write('  \n')
             CO2 = st.slider('Rejet CO2', 0, 500, 29, 1, disabled = True)
             
-            
-
-
+        
         elif (Exemple1 == False) | (Reset==True) :
             st.write('  \n')
             col1, col2 = st.columns([1,1])
