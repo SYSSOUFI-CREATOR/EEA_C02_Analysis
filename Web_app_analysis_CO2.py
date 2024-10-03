@@ -561,24 +561,24 @@ with st.sidebar:
 
             with col_2:
                 col1, col2 = st.columns([2,1])
-                with col2:
-                    test3 = st.checkbox('Inconnu', key = 3, value = True, label_visibility= 'hidden')
-                with col1:
-                    Engin_capacity_cm3 = st.slider('Cylindré', 600, 8000, 1390, 100, disabled=test3)
-                
-                col1, col2 = st.columns([2,1])
-                with col2:
-                    test4 = st.checkbox('Inconnu', key = 4
-                value = True, label_visibility= 'hidden')
+            with col2:
+                test3 = st.checkbox('Inconnu', key = 3, value = True, label_visibility='hidden')
+            with col1:
+                Engin_capacity_cm3 = st.slider('Cylindré', 600, 8000, 1390, 100, disabled=test3)
+    
+            col1, col2 = st.columns([2,1])
+            with col2:
+                test4 = st.checkbox('Inconnu', key = 4, value = True, label_visibility='hidden')
             with col1:
                 Engin_power_KW = st.slider('Puissance', 50, 1200, 110, 10, disabled=test4)
-                
+    
             if (Fuel_type == 'HYBRID_P') | (Fuel_type == 'HYBRID_D'):
+        
                 col1, col2 = st.columns([2,1])
-                with col2:
-                    test6 = st.checkbox('Inconnu', key = 6, value = True, label_visibility= 'hidden')
-                with col1:
-                    Electric_cons = st.slider('Consommation électrique', 10, 600, 45, 10, disabled=test6)
+            with col2:
+                test6 = st.checkbox('Inconnu', key = 6, value = True, label_visibility='hidden')
+            with col1:
+                Electric_cons = st.slider('Consommation électrique', 10, 600, 45, 10, disabled=test6)
             else:
                 Electric_cons = 0
 
