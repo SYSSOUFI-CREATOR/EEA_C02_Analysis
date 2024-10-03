@@ -256,7 +256,7 @@ if page == 'Machine Learning':
             "R² Score": [values.get("LinearRegression", [0, 0, 0, 0])[3], values.get("XGBRegressor", [0, 0, 0, 0])[3]]
         }
     
-        st.table(data)
+        #st.table(data)
 
         df = pd.DataFrame(data)
         st.dataframe(df)
