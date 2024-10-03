@@ -1,6 +1,8 @@
 # Import des bibliothèques
 import streamlit as st
 import pandas as pd
+import altair as alt
+import plotly.express as px
 import numpy as np
 import pickle
 import os
@@ -420,6 +422,213 @@ if page == 'Machine Learning':
        
 
 # Page 5
+//////
+# CSS styling
+st.markdown("""
+<style>
+[data-testid="block-container"] {
+    padding-left: 2rem;
+    padding-right: 2rem;
+    padding-top: 1rem;
+    padding-bottom: 0rem;
+    margin-bottom: -7rem;
+}
+[data-testid="stVerticalBlock"] {
+    padding-left: 0rem;
+    padding-right: 0rem;
+}
+[data-testid="stMetric"] {
+    background-color: #393939;
+    text-align: center;
+    padding: 15px 0;
+}
+[data-testid="stMetricLabel"] {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+[data-testid="stMetricDeltaIcon-Up"] {
+    position: relative;
+    left: 38%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+[data-testid="stMetricDeltaIcon-Down"] {
+    position: relative;
+    left: 38%;
+    -webkit-transform: translateX(-50%);
+    -ms-transform: translateX(-50%);
+    transform: translateX(-50%);
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Load data
+df_reshaped = pd.read_csv('data/us-population-2010-2019-reshaped.csv')
+
+# Sidebar
+with st.sidebar:
+    st.title('🚗 Application en contexte')
+    st.write('Cette partie propose d\'utiliser nos modèles de prédiction pour les appliquer à des exemples plus concrets.')
+    st.write('Deux contextes d\'application sont proposés :\
+             \n* **Constructeur automobile** :\
+             \nDu point de vue d\'un constructeur automobile, on souhaite anticiper la taxe CO2 qui sera appliquée sur notre véhicule le plus tôt possible.\
+             \n* **European Environment Agency** :\
+             \nDu point de vue de l\'EEA, qui souhaite lorsqu\'un nouveau test WLTP est entré dans la base de données, vérifier la cohérence des données pour limiter les lignes mal renseignées.')
+    contexte = st.selectbox('Choix du contexte', ['Constructeur auto', 'EEA'])
+
+    if contexte == 'Constructeur auto':
+        choix_model = st.selectbox('Choisir le modèle de classification',('DecisionTree','XGBClassifier'))
+        if choix_model == 'DecisionTree':
+            model_cla = pickle.load(open("models/model_DecisionTreeClassifier", 'rb'))
+            transformer_cla = pickle.load(open("models/transformer_DecisionTreeClassifier.pkl", 'rb'))
+        else:
+            model_cla = pickle.load(open("models/model_XGBClassifier", 'rb'))
+            transformer_cla = pickle.load(open("models/transformer_XGBClassifier.pkl", 'rb'))
+        
+        st.write('#### Définition du véhicule')
+        Fuel_type = st.selectbox('Type de carburant', ('DIESEL', 'PETROL', 'LPG', 'NG', 'E85', 'HYBRID_D', 'HYBRID_P'))
+        col1, col2 = st.columns([1,1])
+        with col1:            
+            Engin_power_KW = st.slider('Puissance (KW)', 50, 1200, 130, 10)   
+            Mass_wltp_kg = st.slider('Masse du véhicule (kg)', 500, 5000, 1800, 10)
+        with col2:
+            Engin_capacity_cm3 = st.slider('Cylindré (cm3)', 600, 8000, 2000, 100)
+            if (Fuel_type == 'HYBRID_P') | (Fuel_type == 'HYBRID_D'):
+                Electric_range_km = st.slider('Autonomie électrique (km)', 0, 1000, 50, 10)
+            else:
+                Electric_range_km = 0
+        
+        param = {'Mass_wltp_kg': [Mass_wltp_kg], 'Fuel_type': [Fuel_type], 'Engin_capcity_cm3':[Engin_capacity_cm3], 'Horse_power_KW':[Engin_power_KW], 'Electric_range_km':[Electric_range_km]}
+        X = pd.DataFrame(data=param)
+        X_transform = transformer_cla.transform(X)
+        y_predict = model_cla.predict(X_transform)
+        
+        st.write('#### Taxe estimée')
+        if y_predict[0] == 0:
+            st.write(':green[Pas de taxe CO2 sur ce véhicule]')
+        if y_predict[0] == 1:
+            st.write(':blue[Taxe sur ce véhicule entre 0€ et 1.000€]')
+        if y_predict[0] == 2:
+            st.write(':orange[Taxe sur ce véhicule entre 1.000€ et 10.000€]')
+        if y_predict[0] == 3:
+            st.write(':red[Taxe sur ce véhicule au dessus de 10.000€]')
+                
+    else:
+        choix_model = st.selectbox('Choisir le modèle de regression',('LinearRegression','XGBRegressor'))
+        if choix_model == 'LinearRegression':
+            model_reg = pickle.load(open("models/model_LinearRegression", 'rb'))
+            transformer_reg = pickle.load(open("models/transformer_LinearRegression.pkl", 'rb'))
+        else:
+            model_reg = pickle.load(open("models/model_XGBRegressor", 'rb'))
+            transformer_reg = pickle.load(open("models/transformer_XGBRegressor.pkl", 'rb'))
+        
+        st.write('#### Définition du véhicule')
+        Exemple1 = st.button('Charger un exemple', key = 'Exemple1')
+        Reset = st.button('Reset', key = 'Reset')
+        afficher_illustration = False
+        if (Exemple1 == True) | (afficher_illustration) == True:
+            col1, col2 = st.columns([1,1])
+            with col1:            
+                Fuel_type = st.selectbox('Type de carburant', ('HYBRID_P', 'DIESEL', 'PETROL', 'LPG', 'NG', 'E85', 'HYBRID_D', 'HYBRID_P'), disabled=True)
+                Fuel_mode = st.selectbox('Mode de carburant', ('P', 'M', 'H', 'B', 'F', 'P'), disabled=True)
+            with col2:
+                Cat_vehcl_approved = st.selectbox('Catégorie de véhicule', ('M1', 'M1', 'M1G', 'N1', 'N1G', 'N2', 'N2G'), disabled=True)
+                Manufacturer_pooling = st.selectbox('Constructeur', ('VOLKSWAGEN', 'STELLANTIS', 'RENAULT-NISSAN-MITSUBISHI', 'SUBARU-SUZUKI-TOYOTA', 'HYUNDAI MOTOR EUROPE', 'KIA', 'MERCEDES-BENZ AG', 'FORD', 'VOLKSWAGEN', 'BMW', 'MAZDA', 'KG MOBILITY GREAT WALL MOTOR'), disabled=True)
+            
+            col_1, col_2 = st.columns([1,1])
+            with col_1:
+                col1, col2 = st.columns([2,1])
+                with col2:
+                    test1 = st.checkbox('Inconnu', key = 1, value = True, label_visibility= 'hidden')
+                with col1:
+                    Mass_wltp_kg = st.slider('Masse du véhicule', 500, 5000, 1777, 10, disabled=test1)
+                
+                col1, col2 = st.columns([2,1])
+                with col2:
+                    test2 = st.checkbox('Inconnu', key = 2, value = True, label_visibility= 'hidden')
+                with col1:
+                    Fuel_cons = st.slider('Consommation de carburant', 0.0, 25.0, 29.0, 0.1, disabled=test2)
+                
+                if (Fuel_type == 'HYBRID_P') | (Fuel_type == 'HYBRID_D'):
+                    col1, col2 = st.columns([2,1])
+                    with col2:
+                        test5 = st.checkbox('Inconnu', key = 5, value = True, label_visibility= 'hidden')
+                    with col1:
+                        Electric_range_km = st.slider('Autonomie électrique', 0, 1000, 57, 10, disabled=test5)
+                else:
+                    Electric_range_km = 0
+
+            with col_2:
+                col1, col2 = st.columns([2,1])
+                with col2:
+                    test3 = st.checkbox('Inconnu', key = 3, value = True, label_visibility= 'hidden')
+                with col1:
+                    Engin_capacity_cm3 = st.slider('Cylindré', 600, 8000, 1390, 100, disabled=test3)
+                
+                col1, col2 = st.columns([2,1])
+                with col2:
+                    test4 = st.checkbox('Inconnu', key = 4
+                value = True, label_visibility= 'hidden')
+            with col1:
+                Engin_power_KW = st.slider('Puissance', 50, 1200, 110, 10, disabled=test4)
+                
+            if (Fuel_type == 'HYBRID_P') | (Fuel_type == 'HYBRID_D'):
+                col1, col2 = st.columns([2,1])
+                with col2:
+                    test6 = st.checkbox('Inconnu', key = 6, value = True, label_visibility= 'hidden')
+                with col1:
+                    Electric_cons = st.slider('Consommation électrique', 10, 600, 45, 10, disabled=test6)
+            else:
+                Electric_cons = 0
+
+        if Fuel_type == 'INCONNU':
+            Fuel_type = np.nan
+        if Fuel_mode == 'INCONNU':
+            Fuel_mode = np.nan
+        if Cat_vehcl_approved == 'INCONNU':
+            Cat_vehcl_approved = np.nan
+        if Manufacturer_pooling == 'INCONNU':
+            Manufacturer_pooling = np.nan
+
+        st.write('#### Rejet CO2 mesuré')
+        CO2 = st.slider('Rejet CO2', 0, 500, 120, 1)
+        
+        param = {'Mass_wltp_kg': [Mass_wltp_kg],
+                    'Fuel_type': [Fuel_type],
+                    'Engin_capcity_cm3':[Engin_capacity_cm3],
+                    'Horse_power_KW':[Engin_power_KW],
+                    'Electric_range_km':[Electric_range_km],
+                    'Fuel_mode': [Fuel_mode],
+                    'Cat_vehcl_approved': [Cat_vehcl_approved],
+                    'Manufacturer_pooling': [Manufacturer_pooling],
+                    'Fuel_cons': [Fuel_cons],
+                    'Electric_cons': [Electric_cons],
+                    }
+        X = pd.DataFrame(data=param)
+        X_transform = transformer_reg.transform(X)
+        y_predict = model_reg.predict(X_transform)
+        
+        st.write('#### Evaluation de la cohérence des données')
+        if round(abs((CO2-y_predict[0])/y_predict[0]*100),1) < 10:
+            st.write(f':green[Pas d\'alerte.]  \nL\'émission CO2 renseignée diffère de {round(abs((CO2-y_predict[0])/y_predict[0]*100),1)}% de l\'émission attendue ({round(y_predict[0],0)})')
+        elif round(abs((CO2-y_predict[0])/y_predict[0]*100),1) < 25:
+            st.write(f':orange[Vérifiez les données, écart non négligeable.]  \nL\'émission CO2 renseignée diffère de {round(abs((CO2-y_predict[0])/y_predict[0]*100),1)}% de l\'émission attendue ({round(y_predict[0],0)})')
+        else:
+            st.write(f':red[Vérifiez les données, écart très important.]  \nL\'émission CO2 renseignée diffère de {round(abs((CO2-y_predict[0])/y_predict[0]*100),1)}% de l\'émission attendue ({round(y_predict[0],0)})')
+
+        if Exemple1 == True:
+            st.write('Graphiques explicatifs de la situation :')
+            st.image('Images/Exemple_erreur_prediction.png')
+            col1, col2, col3 = st.columns(3)            
+            with col1:
+                st.image('Images/ratio_petrol.png')
+            with col2:
+                st.image('Images/donnees_aberantes.png')
+            with col3:
+                st.image('Images/data_corrige.png')
+//////
 if page == 'Dashboard':
     st.header('Application en contexte')
     st.write('Cette partie propose d\'utiliser nos modèles de prédiction pour les appliquer à des exemples plus concrets.')
