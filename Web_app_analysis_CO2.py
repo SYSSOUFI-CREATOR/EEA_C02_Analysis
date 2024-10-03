@@ -17,7 +17,7 @@ def import_dataframe():
 df, df_non_pertinent, df_final = import_dataframe()
 
 # Création des pages et de la sidebar
-pages = ['Introduction', 'Exploration des données', 'DataViz\'', 'Machine Learning', 'Application en contexte', 'Conclusion et perspectives']
+pages = ['Introduction', 'Exploration des données', 'DataViz\'', 'Machine Learning', 'Dashboard', 'Conclusion et perspectives']
 st.sidebar.write('# Emission CO2')
 page = st.sidebar.radio('Aller vers', pages)
 st.sidebar.write('# Auteurs')
@@ -420,7 +420,7 @@ if page == 'Machine Learning':
        
 
 # Page 5
-if page == 'Application en contexte':
+if page == 'Dashboard':
     st.header('Application en contexte')
     st.write('Cette partie propose d\'utiliser nos modèles de prédiction pour les appliquer à des exemples plus concrets.')
     st.write('Deux contexte d\'application sont proposés :\
