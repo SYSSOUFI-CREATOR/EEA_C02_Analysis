@@ -213,7 +213,7 @@ if page == 'Machine Learning':
     
     
     def regression_lineaire():
-        Variable_options = st.selectbox("Options des Variables", [" ","Toutes les variables", "Variables indispensables"])
+        Variable_options = st.selectbox("Options des Variables", [" ", "Toutes les variables", "Variables indispensables"])
         Vehicule_options = st.selectbox("Type de véhicules", [" ", "Thermique", "Thermique et hybride"])
     
         # Vérifier si les options sont sélectionnées
@@ -221,12 +221,6 @@ if page == 'Machine Learning':
             st.write("Veuillez sélectionner les options des variables et le type de véhicules.")
             return
     
-        image_paths = {
-            ("Toutes les variables", "Thermique"): "FV_VTU.png",
-            ("Toutes les variables", "Thermique et hybride"): "FV_VTH.png",
-            ("Variables indispensables", "Thermique"): "VI_VTU.png",
-            ("Variables indispensables", "Thermique et hybride"): "VI_VTH.png"
-        }
         model_values = {
             "FV_VTU.png": {
                 "LinearRegression": [63.108898, 7.944111, 4.953130, 0.959354],
@@ -237,7 +231,7 @@ if page == 'Machine Learning':
                 "XGBRegressor": [14.105852, 3.755776, 1.583904, 0.996389]
             },
             "VI_VTU.png": {
-                "LinearRegression": [ 300.713958, 17.341106, 12.992647, 0.815814],
+                "LinearRegression": [300.713958, 17.341106, 12.992647, 0.815814],
                 "XGBRegressor": [65.186753, 8.073831, 5.645208, 0.960073]
             },
             "VI_VTH.png": {
@@ -245,13 +239,14 @@ if page == 'Machine Learning':
                 "XGBRegressor": [93.915095, 9.690980, 5.361660, 0.976229]
             }
         }
-        image_file = image_paths.get((Variable_options, Vehicule_options))
-        image_path = os.path.join("Images/Regression", image_file)
-        if os.path.exists(image_path) and image_path.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
-            image = Image.open(image_path)
-            st.image(image, caption=f"Image pour {Variable_options} - {Vehicule_options}")
-        else:
-            st.write("Aucune image trouvée ou le fichier n'est pas une image.")
+    
+        image_file = {
+            ("Toutes les variables", "Thermique"): "FV_VTU.png",
+            ("Toutes les variables", "Thermique et hybride"): "FV_VTH.png",
+            ("Variables indispensables", "Thermique"): "VI_VTU.png",
+            ("Variables indispensables", "Thermique et hybride"): "VI_VTH.png"
+        }.get((Variable_options, Vehicule_options))
+    
         values = model_values.get(image_file, {})
         data = {
             "Model": ["LinearRegression", "XGBRegressor"],
@@ -260,6 +255,9 @@ if page == 'Machine Learning':
             "Mean Absolute Error": [values.get("LinearRegression", [0, 0, 0, 0])[2], values.get("XGBRegressor", [0, 0, 0, 0])[2]],
             "R² Score": [values.get("LinearRegression", [0, 0, 0, 0])[3], values.get("XGBRegressor", [0, 0, 0, 0])[3]]
         }
+    
+        st.table(data)
+
         df = pd.DataFrame(data)
         st.dataframe(df)
         st.dataframe(df)
