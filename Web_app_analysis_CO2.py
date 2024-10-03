@@ -422,7 +422,6 @@ if page == 'Machine Learning':
        
 
 # Page 5
-//////
 # CSS styling
 st.markdown("""
 <style>
