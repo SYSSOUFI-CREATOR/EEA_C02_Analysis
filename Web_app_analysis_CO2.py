@@ -31,8 +31,7 @@ if page == 'Introduction':
     st.image("https://ispira-qualite-air.fr/wp-content/uploads/2021/08/pollution-de-lair-en-ville.jpeg")
     st.header('Introduction')
     st.subheader('Contexte')
-    st.write("Dans le cadre de la formation 'Data Analyst' que nous avons tous suivis au sein de Datascientest, nous avons travaillé sur un projet s\'étendant sur l\'ensemble de la période de formation,\
-              soit 3 mois.\n\n Dans le contexte de notre formation, nous avons pu appliquer nos connaissances au fur et à mesure de notre progression sur un cas concret d\'analyse de données,\
+    st.write("Dans le cadre de la formation 'Data Analyst' que nous avons tous suivis au sein de Datascientest, nous avons travaillé sur un projet s\'étendant sur l\'ensemble de la période de formation.\n\n Dans le contexte de notre formation, nous avons pu appliquer nos connaissances au fur et à mesure de notre progression sur un cas concret d\'analyse de données,\
               et ainsi améliorer nos compétences.")
 
     st.subheader('Problématique')
@@ -426,9 +425,9 @@ if page == 'Application en contexte':
     st.write('Cette partie propose d\'utiliser nos modèles de prédiction pour les appliquer à des exemples plus concrets.')
     st.write('Deux contexte d\'application sont proposés :\
              \n* **Constructeur automobile** :\
-             \nDans la peau d\'un constructeur automobile, on souhaite anticiper la taxe CO2 qui sera appliquée sur notre véhicule le plus tôt pôssible.\
+             \nDu point de vue d\'un constructeur automobile, on souhaite anticiper la taxe CO2 qui sera appliquée sur notre véhicule le plus tôt pôssible.\
              \n* **European Environment Agency** :\
-             \nDans la peau de l\'EEA, qui souhaite lorsqu\'un nouveau test WLTP est entré dans la base de donnée, vérifier la cohérence des données pour limiter les lignes mal renseignées.')
+             \nDu point de vue de l\'EEA, qui souhaite lorsqu\'un nouveau test WLTP est entré dans la base de donnée, vérifier la cohérence des données pour limiter les lignes mal renseignées.')
     contexte = st.selectbox('Choix du contexte', ['Constructeur auto', 'EEA'])
     if contexte == 'Constructeur auto':
         st.write('  \n')
